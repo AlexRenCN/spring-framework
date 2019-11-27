@@ -203,21 +203,23 @@ class ConstructorResolver {
 			LinkedList<UnsatisfiedDependencyException> causes = null;
 
 			for (Constructor<?> candidate : candidates) {
-				Class<?>[] paramTypes = candidate.getParameterTypes();
 
-				if (constructorToUse != null && argsToUse != null && argsToUse.length > paramTypes.length) {
+				int parameterCount = candidate.getParameterCount();
+
+				if (constructorToUse != null && argsToUse != null && argsToUse.length > parameterCount) {
 					// Already found greedy constructor that can be satisfied ->
 					// do not look any further, there are only less greedy constructors left.
 					break;
 				}
-				if (paramTypes.length < minNrOfArgs) {
+				if (parameterCount < minNrOfArgs) {
 					continue;
 				}
 
 				ArgumentsHolder argsHolder;
+				Class<?>[] paramTypes = candidate.getParameterTypes();
 				if (resolvedValues != null) {
 					try {
-						String[] paramNames = ConstructorPropertiesChecker.evaluate(candidate, paramTypes.length);
+						String[] paramNames = ConstructorPropertiesChecker.evaluate(candidate, parameterCount);
 						if (paramNames == null) {
 							ParameterNameDiscoverer pnd = this.beanFactory.getParameterNameDiscoverer();
 							if (pnd != null) {
@@ -241,7 +243,7 @@ class ConstructorResolver {
 				}
 				else {
 					// Explicit arguments given -> arguments length must match exactly.
-					if (paramTypes.length != explicitArgs.length) {
+					if (parameterCount != explicitArgs.length) {
 						continue;
 					}
 					argsHolder = new ArgumentsHolder(explicitArgs);
@@ -341,13 +343,20 @@ class ConstructorResolver {
 				if (uniqueCandidate == null) {
 					uniqueCandidate = candidate;
 				}
-				else if (!Arrays.equals(uniqueCandidate.getParameterTypes(), candidate.getParameterTypes())) {
+				else if (isParamMismatch(uniqueCandidate, candidate)) {
 					uniqueCandidate = null;
 					break;
 				}
 			}
 		}
 		mbd.factoryMethodToIntrospect = uniqueCandidate;
+	}
+
+	private boolean isParamMismatch(Method uniqueCandidate, Method candidate) {
+		int uniqueCandidateParameterCount = uniqueCandidate.getParameterCount();
+		int candidateParameterCount = candidate.getParameterCount();
+		return (uniqueCandidateParameterCount != candidateParameterCount ||
+				!Arrays.equals(uniqueCandidate.getParameterTypes(), candidate.getParameterTypes()));
 	}
 
 	/**
@@ -468,7 +477,7 @@ class ConstructorResolver {
 			// Try all methods with this name to see if they match the given arguments.
 			factoryClass = ClassUtils.getUserClass(factoryClass);
 
-			List<Method> candidateList = null;
+			List<Method> candidates = null;
 			// 尝试加载所有可能的构造方法
 			if (mbd.isFactoryMethodUnique) {
 				// 使用已经加载过的工厂方法
@@ -476,22 +485,22 @@ class ConstructorResolver {
 					factoryMethodToUse = mbd.getResolvedFactoryMethod();
 				}
 				if (factoryMethodToUse != null) {
-					candidateList = Collections.singletonList(factoryMethodToUse);
+					candidates = Collections.singletonList(factoryMethodToUse);
 				}
 			}
-			if (candidateList == null) {
+			if (candidates == null) {
 				// 尝试加载所有可能的静态构造方法
-				candidateList = new ArrayList<>();
+				candidates = new ArrayList<>();
 				Method[] rawCandidates = getCandidateMethods(factoryClass, mbd);
 				for (Method candidate : rawCandidates) {
 					if (Modifier.isStatic(candidate.getModifiers()) == isStatic && mbd.isFactoryMethod(candidate)) {
-						candidateList.add(candidate);
+						candidates.add(candidate);
 					}
 				}
 			}
-			// 创建对应的bean
-			if (candidateList.size() == 1 && explicitArgs == null && !mbd.hasConstructorArgumentValues()) {
-				Method uniqueCandidate = candidateList.get(0);
+            // 创建对应的bean
+			if (candidates.size() == 1 && explicitArgs == null && !mbd.hasConstructorArgumentValues()) {
+				Method uniqueCandidate = candidates.get(0);
 				if (uniqueCandidate.getParameterCount() == 0) {
 					mbd.factoryMethodToIntrospect = uniqueCandidate;
 					synchronized (mbd.constructorArgumentLock) {
@@ -503,11 +512,11 @@ class ConstructorResolver {
 					return bw;
 				}
 			}
-			// 工厂方法数组
-			Method[] candidates = candidateList.toArray(new Method[0]);
-			// 对工厂方法进行排序
-			AutowireUtils.sortFactoryMethods(candidates);
-			// 用于存储解析后的、用在构造器里的参数的值
+			// 如果工厂方法有多个，则对工厂方法进行排序
+			if (candidates.size() > 1) {  // explicitly skip immutable singletonList
+				candidates.sort(AutowireUtils.EXECUTABLE_COMPARATOR);
+			}
+            // 用于存储解析后的、用在构造器里的参数的值
 			ConstructorArgumentValues resolvedValues = null;
 			boolean autowiring = (mbd.getResolvedAutowireMode() == AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR);
 			int minTypeDiffWeight = Integer.MAX_VALUE;
@@ -536,12 +545,12 @@ class ConstructorResolver {
 			LinkedList<UnsatisfiedDependencyException> causes = null;
 			// 遍历所有的构造器
 			for (Method candidate : candidates) {
-				Class<?>[] paramTypes = candidate.getParameterTypes();
-				// 参数个数匹配
-				if (paramTypes.length >= minNrOfArgs) {
-					// 用户参数保存
+                // 先进行参数个数的匹配
+				int parameterCount = candidate.getParameterCount();
+				if (parameterCount >= minNrOfArgs) {
 					ArgumentsHolder argsHolder;
-
+                    // 获取参数类型
+					Class<?>[] paramTypes = candidate.getParameterTypes();
 					if (explicitArgs != null) {
 						// 校验给定的参数和构造器参数是否相同
 						// Explicit arguments given -> arguments length must match exactly.
@@ -563,7 +572,7 @@ class ConstructorResolver {
 							}
 							// 暂存到保存器中
 							argsHolder = createArgumentArray(beanName, mbd, resolvedValues, bw,
-									paramTypes, paramNames, candidate, autowiring, candidates.length == 1);
+									paramTypes, paramNames, candidate, autowiring, candidates.size() == 1);
 						}
 						catch (UnsatisfiedDependencyException ex) {
 							if (logger.isTraceEnabled()) {

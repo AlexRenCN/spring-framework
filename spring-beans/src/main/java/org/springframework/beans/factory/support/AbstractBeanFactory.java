@@ -1359,14 +1359,15 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			RootBeanDefinition mbd = null;
 			// 检查使用全锁,为了执行相同的合并实例。
 			RootBeanDefinition previous = null;
+
 			// Check with full lock now in order to enforce the same merged instance.
 			if (containingBd == null) {
 				// 从缓存中获取
 				mbd = this.mergedBeanDefinitions.get(beanName);
 			}
 
-			if (mbd == null) {
-				// 如果没有父类
+			if (mbd == null || mbd.stale) {
+				previous = mbd;
 				if (bd.getParentName() == null) {
 					// 如果本来就属于root bean definition.则使用他的副本
 					// Use copy of given root bean definition.
@@ -1418,7 +1419,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				// 设置默认的单例范围，如果之前没有配置。
 				// Set default singleton scope, if not configured before.
 				if (!StringUtils.hasLength(mbd.getScope())) {
-					mbd.setScope(RootBeanDefinition.SCOPE_SINGLETON);
+					mbd.setScope(SCOPE_SINGLETON);
 				}
 				// 非单例bean中包含的bean也不能是单例bean。
 				// A bean contained in a non-singleton bean cannot be a singleton itself.

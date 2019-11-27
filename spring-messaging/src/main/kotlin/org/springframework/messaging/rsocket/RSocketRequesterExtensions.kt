@@ -65,7 +65,7 @@ suspend fun RSocketRequester.Builder.connectWebSocketAndAwait(uri: URI): RSocket
  * @author Sebastien Deleuze
  * @since 5.2
  */
-inline fun <reified T : Any> RSocketRequester.RequestSpec.dataWithType(producer: Any): RSocketRequester.RequestSpec =
+inline fun <reified T : Any> RSocketRequester.RequestSpec.dataWithType(producer: Any): RSocketRequester.RetrieveSpec =
 		data(producer, object : ParameterizedTypeReference<T>() {})
 
 /**
@@ -77,7 +77,7 @@ inline fun <reified T : Any> RSocketRequester.RequestSpec.dataWithType(producer:
  * @author Sebastien Deleuze
  * @since 5.2
  */
-inline fun <reified T : Any> RSocketRequester.RequestSpec.dataWithType(publisher: Publisher<T>): RSocketRequester.RequestSpec =
+inline fun <reified T : Any> RSocketRequester.RequestSpec.dataWithType(publisher: Publisher<T>): RSocketRequester.RetrieveSpec =
 		data(publisher, object : ParameterizedTypeReference<T>() {})
 
 /**
@@ -89,7 +89,7 @@ inline fun <reified T : Any> RSocketRequester.RequestSpec.dataWithType(publisher
  * @author Sebastien Deleuze
  * @since 5.2
  */
-inline fun <reified T : Any> RSocketRequester.RequestSpec.dataWithType(flow: Flow<T>): RSocketRequester.RequestSpec =
+inline fun <reified T : Any> RSocketRequester.RequestSpec.dataWithType(flow: Flow<T>): RSocketRequester.RetrieveSpec =
 		data(flow, object : ParameterizedTypeReference<T>() {})
 
 
@@ -111,6 +111,15 @@ suspend fun RSocketRequester.RequestSpec.sendAndAwait() {
  */
 suspend inline fun <reified T : Any> RSocketRequester.RequestSpec.retrieveAndAwait(): T =
 		retrieveMono(object : ParameterizedTypeReference<T>() {}).awaitSingle()
+
+/**
+ * Nullable coroutines variant of [RSocketRequester.RequestSpec.retrieveMono].
+ *
+ * @author Sebastien Deleuze
+ * @since 5.2.1
+ */
+suspend inline fun <reified T : Any> RSocketRequester.RequestSpec.retrieveAndAwaitOrNull(): T? =
+		retrieveMono(object : ParameterizedTypeReference<T>() {}).awaitFirstOrNull()
 
 /**
  * Coroutines variant of [RSocketRequester.RequestSpec.retrieveFlux].

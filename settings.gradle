@@ -5,14 +5,7 @@ pluginManagement {
 	}
 }
 
-buildCache {
-	local {
-		enabled = true
-	}
-	remote(HttpBuildCache) {
-		enabled = false
-	}
-}
+apply from: "$rootDir/gradle/build-cache-settings.gradle"
 
 include "spring-aop"
 include "spring-aspects"

@@ -39,7 +39,6 @@ import org.springframework.util.Assert;
  * @see #execute
  * @see ReactiveTransactionManager
  */
-@SuppressWarnings("serial")
 final class TransactionalOperatorImpl implements TransactionalOperator {
 
 	private static final Log logger = LogFactory.getLog(TransactionalOperatorImpl.class);
@@ -80,7 +79,7 @@ final class TransactionalOperatorImpl implements TransactionalOperator {
 			// Need re-wrapping of ReactiveTransaction until we get hold of the exception
 			// through usingWhen.
 			return status.flatMap(it -> Mono.usingWhen(Mono.just(it), ignore -> mono,
-					this.transactionManager::commit, (res, err) -> Mono.empty(), s -> Mono.empty())
+					this.transactionManager::commit, (res, err) -> Mono.empty(), this.transactionManager::commit)
 					.onErrorResume(ex -> rollbackOnException(it, ex).then(Mono.error(ex))));
 		})
 		.subscriberContext(TransactionContextManager.getOrCreateContext())
