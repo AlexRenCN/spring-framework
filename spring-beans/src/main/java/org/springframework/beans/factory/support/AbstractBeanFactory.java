@@ -1365,7 +1365,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				// 从缓存中获取
 				mbd = this.mergedBeanDefinitions.get(beanName);
 			}
-
+			// 如果没有父类 或者需要重新合并RootBeanDefinition
 			if (mbd == null || mbd.stale) {
 				previous = mbd;
 				if (bd.getParentName() == null) {
