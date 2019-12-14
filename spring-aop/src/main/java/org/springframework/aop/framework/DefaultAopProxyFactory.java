@@ -28,8 +28,11 @@ import org.springframework.aop.SpringProxy;
  * <p>Creates a CGLIB proxy if one the following is true for a given
  * {@link AdvisedSupport} instance:
  * <ul>
+ * 是否应该立即生成代理
  * <li>the {@code optimize} flag is set
+ * 代理机制 true对应cglib，false对应java代理，默认是java代理
  * <li>the {@code proxyTargetClass} flag is set
+ * 是否指定了代理模式
  * <li>no proxy interfaces have been specified
  * </ul>
  *
@@ -48,6 +51,7 @@ public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
 
 	@Override
 	public AopProxy createAopProxy(AdvisedSupport config) throws AopConfigException {
+		//应该立即生成代理  或指定了代理机制  或指定了代理配置
 		if (config.isOptimize() || config.isProxyTargetClass() || hasNoUserSuppliedProxyInterfaces(config)) {
 			Class<?> targetClass = config.getTargetClass();
 			if (targetClass == null) {
@@ -65,11 +69,13 @@ public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
 	}
 
 	/**
+	 * 查找AOP代理的配置是否有指定代理模式
 	 * Determine whether the supplied {@link AdvisedSupport} has only the
 	 * {@link org.springframework.aop.SpringProxy} interface specified
 	 * (or no proxy interfaces specified at all).
 	 */
 	private boolean hasNoUserSuppliedProxyInterfaces(AdvisedSupport config) {
+		//查找AOP代理的配置是否有指定代理模式
 		Class<?>[] ifcs = config.getProxiedInterfaces();
 		return (ifcs.length == 0 || (ifcs.length == 1 && SpringProxy.class.isAssignableFrom(ifcs[0])));
 	}

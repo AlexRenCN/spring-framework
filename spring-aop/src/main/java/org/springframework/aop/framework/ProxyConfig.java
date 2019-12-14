@@ -34,8 +34,20 @@ public class ProxyConfig implements Serializable {
 	private static final long serialVersionUID = -8409359707199703185L;
 
 
+	/**
+	 * 代理机制
+	 * true
+	 * 目标对象实现了接口 – 使用CGLIB代理机制
+	 * 目标对象没有接口(只有实现类) – 使用CGLIB代理机制
+	 * false
+	 * 目标对象实现了接口 – 使用JDK动态代理机制(代理所有实现了的接口)
+	 * 目标对象没有接口(只有实现类) – 使用CGLIB代理机制
+	 */
 	private boolean proxyTargetClass = false;
 
+	/**
+	 * 是否应该立即生成代理
+	 */
 	private boolean optimize = false;
 
 	boolean opaque = false;
@@ -84,6 +96,7 @@ public class ProxyConfig implements Serializable {
 	}
 
 	/**
+	 * 返回是否应该立即生成代理
 	 * Return whether proxies should perform aggressive optimizations.
 	 */
 	public boolean isOptimize() {
