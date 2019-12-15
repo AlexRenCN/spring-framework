@@ -37,6 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Supplier;
 
+import com.sun.xml.internal.bind.v2.TODO;
 import org.apache.commons.logging.Log;
 
 import org.springframework.beans.BeanUtils;
@@ -83,6 +84,8 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.ReflectionUtils.MethodCallback;
 import org.springframework.util.StringUtils;
+
+import javax.swing.*;
 
 /**
  * Abstract bean factory superclass that implements default bean creation,
@@ -572,6 +575,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 		// 选择合适的方式进行bean的实例化（缺省/工厂/构造器选择）
 		if (instanceWrapper == null) {
+			//TODO 【alex】Spring bean声明周期，第一周期实例化
 			instanceWrapper = createBeanInstance(beanName, mbd, args);
 		}
 		// 获得实例对象
@@ -618,8 +622,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		Object exposedObject = bean;
 		try {
 			// 填充Bean注入属性
+			//TODO 【alex】Spring bean声明周期，第二周期填充属性
 			populateBean(beanName, mbd, instanceWrapper);
 			// 调用初始化方法
+			//TODO 【alex】Spring bean声明周期，第三周期初始化
 			exposedObject = initializeBean(beanName, exposedObject, mbd);
 		}
 		catch (Throwable ex) {
