@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package org.springframework.core;
 
 /**
  * 管理别名的公共接口
- * Common interface for managing aliases. Serves as super-interface for
+ * Common interface for managing aliases. Serves as a super-interface for
  * {@link org.springframework.beans.factory.support.BeanDefinitionRegistry}.
  *
  * @author Juergen Hoeller
@@ -46,7 +46,7 @@ public interface AliasRegistry {
 
 	/**
 	 * 确定此给定名称是否定义为别名
-	 * Determine whether this given name is defines as an alias
+	 * Determine whether the given name is defined as an alias
 	 * 与实际注册组件的名称相反
 	 * (as opposed to the name of an actually registered component).
 	 * @param name the name to check

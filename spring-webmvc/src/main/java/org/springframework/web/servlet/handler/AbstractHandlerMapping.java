@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,8 @@ import org.springframework.util.Assert;
 import org.springframework.util.PathMatcher;
 import org.springframework.web.HttpRequestHandler;
 import org.springframework.web.context.request.WebRequestInterceptor;
+import org.springframework.web.context.request.async.WebAsyncManager;
+import org.springframework.web.context.request.async.WebAsyncUtils;
 import org.springframework.web.context.support.WebApplicationObjectSupport;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -476,9 +478,8 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 		else if (logger.isDebugEnabled() && !request.getDispatcherType().equals(DispatcherType.ASYNC)) {
 			logger.debug("Mapped to " + executionChain.getHandler());
 		}
-
 		//如果是Cors配置（Cross-Origin Resource Sharing跨域资源共享，一种跨域解决方案）
-		if (hasCorsConfigurationSource(handler)) {
+		if (hasCorsConfigurationSource(handler) || CorsUtils.isPreFlightRequest(request)) {
 			//获取Cors配置
 			CorsConfiguration config = (this.corsConfigurationSource != null ? this.corsConfigurationSource.getCorsConfiguration(request) : null);
 			CorsConfiguration handlerConfig = getCorsConfiguration(handler, request);
@@ -646,6 +647,12 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 		@Override
 		public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 				throws Exception {
+
+			// Consistent with CorsFilter, ignore ASYNC dispatches
+			WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
+			if (asyncManager.hasConcurrentResult()) {
+				return true;
+			}
 
 			return corsProcessor.processRequest(this.config, request, response);
 		}

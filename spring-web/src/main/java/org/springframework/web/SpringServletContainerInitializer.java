@@ -110,8 +110,8 @@ import org.springframework.util.ReflectionUtils;
  * @see #onStartup(Set, ServletContext)
  * @see WebApplicationInitializer
  */
-//servlet3.0容器在启动时自动扫描带WebApplicationInitializer处理器的实现类
 @HandlesTypes(WebApplicationInitializer.class)
+//servlet3.0容器在启动时自动扫描带WebApplicationInitializer处理器的实现类
 public class SpringServletContainerInitializer implements ServletContainerInitializer {
 
 	/**
