@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -333,21 +333,15 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 			throw new BeanDefinitionStoreException(
 					"Detected cyclic loading of " + encodedResource + " - check your import definitions!");
 		}
-		try {
-			//从EncodedResource编码过的资源对象中获取Resource资源对象并开启InputStream输入流
-			InputStream inputStream = encodedResource.getResource().getInputStream();
-			try {
-				InputSource inputSource = new InputSource(inputStream);
-				if (encodedResource.getEncoding() != null) {
-					//设置对应的编码
-					inputSource.setEncoding(encodedResource.getEncoding());
-				}
-				//开始加载BeanDefinition
-				return doLoadBeanDefinitions(inputSource, encodedResource.getResource());
+        //从EncodedResource编码过的资源对象中获取Resource资源对象并开启InputStream输入流
+		try (InputStream inputStream = encodedResource.getResource().getInputStream()) {
+			InputSource inputSource = new InputSource(inputStream);
+			if (encodedResource.getEncoding() != null) {
+				//设置对应的编码
+				inputSource.setEncoding(encodedResource.getEncoding());
 			}
-			finally {
-				inputStream.close();
-			}
+			//开始加载BeanDefinition
+			return doLoadBeanDefinitions(inputSource, encodedResource.getResource());
 		}
 		catch (IOException ex) {
 			throw new BeanDefinitionStoreException(
