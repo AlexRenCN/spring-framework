@@ -1863,6 +1863,9 @@ public abstract class AbstractAopProxyTests {
 	}
 
 
+	/**
+	 * 方法调用次数统计前置增强
+	 */
 	@SuppressWarnings("serial")
 	public static class CountingMultiAdvice extends MethodCounter implements MethodBeforeAdvice,
 			AfterReturningAdvice, ThrowsAdvice {

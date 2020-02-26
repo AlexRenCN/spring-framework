@@ -19,7 +19,7 @@ package org.springframework.aop;
 import org.aopalliance.aop.Advice;
 
 /**
- * 包含增强逻辑，能否处理对过滤器
+ * Advisor通知器用来链接增强逻辑advice和切入点pointcut，
  * Base interface holding AOP <b>advice</b> (action to take at a joinpoint)
  * and a filter determining the applicability of the advice (such as
  * 这个接口不是供Spring用户使用的，而是允许在支持不同类型的建议时具有通用性。

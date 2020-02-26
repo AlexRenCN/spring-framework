@@ -71,6 +71,7 @@ public class DefaultMultipartHttpServletRequest extends AbstractMultipartHttpSer
 	}
 
 	/**
+	 * 把指定的HttpServletRequest对象包装到MultipartHttpServletRequest里
 	 * Wrap the given HttpServletRequest in a MultipartHttpServletRequest.
 	 * @param request the servlet request to wrap
 	 */
@@ -165,6 +166,8 @@ public class DefaultMultipartHttpServletRequest extends AbstractMultipartHttpSer
 	}
 
 	/**
+	 * 获取用于检索的多段提交的属性Map，
+	 * 如有必要，将其延迟初始化。
 	 * Obtain the multipart parameter Map for retrieval,
 	 * lazily initializing it if necessary.
 	 * @see #initializeMultipart()

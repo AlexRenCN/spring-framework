@@ -26,6 +26,8 @@ import org.springframework.lang.Nullable;
 /**
  * Convenient Pointcut-driven Advisor implementation.
  *
+ * 这是最常用的Advisor实现。它可以与任何pointcut切入点和advice建议类型一起使用，除了说明。
+ * 通常不需要对这个类进行继承，也不需要实现自定义Advisor。
  * <p>This is the most commonly used Advisor implementation. It can be used
  * with any pointcut and advice type, except for introductions. There is
  * normally no need to subclass this class, or to implement custom Advisors.
@@ -38,6 +40,9 @@ import org.springframework.lang.Nullable;
 @SuppressWarnings("serial")
 public class DefaultPointcutAdvisor extends AbstractGenericPointcutAdvisor implements Serializable {
 
+	/**
+	 * 总是匹配的切入点（单例模式）
+	 */
 	private Pointcut pointcut = Pointcut.TRUE;
 
 

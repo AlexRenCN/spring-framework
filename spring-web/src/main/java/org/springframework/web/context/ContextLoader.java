@@ -250,6 +250,7 @@ public class ContextLoader {
 
 
 	/**
+	 * 根据给定的servlet上下文的初始化Spring的Web应用程序上下文，
 	 * Initialize Spring's web application context for the given servlet context,
 	 * using the application context provided at construction time, or creating a new one
 	 * according to the "{@link #CONTEXT_CLASS_PARAM contextClass}" and
@@ -261,7 +262,7 @@ public class ContextLoader {
 	 * @see #CONFIG_LOCATION_PARAM
 	 */
 	public WebApplicationContext initWebApplicationContext(ServletContext servletContext) {
-		//已经有根上下文标志了，可能配置了多个根上下文，抛出异常
+		//已经有spring mvc根上下文了，可能配置了多个根上下文，抛出异常
 		if (servletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE) != null) {
 			throw new IllegalStateException(
 					"Cannot initialize context because there is already a root application context present - " +

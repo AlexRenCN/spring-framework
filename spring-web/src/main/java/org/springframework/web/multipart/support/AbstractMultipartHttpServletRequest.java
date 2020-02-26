@@ -34,9 +34,11 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 /**
+ * MultipartHttpServletRequest接口的抽象基础实现。
+ * 提供对预生成的MultipartFile实例的管理。
  * Abstract base implementation of the MultipartHttpServletRequest interface.
  * Provides management of pre-generated MultipartFile instances.
- *
+ * 通过继承HttpServletRequestWrapper获得了包装HttpServletRequest的能力
  * @author Juergen Hoeller
  * @author Arjen Poutsma
  * @since 06.10.2003
@@ -44,11 +46,15 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 public abstract class AbstractMultipartHttpServletRequest extends HttpServletRequestWrapper
 		implements MultipartHttpServletRequest {
 
+	/**
+	 * 分段提交的参数
+	 */
 	@Nullable
 	private MultiValueMap<String, MultipartFile> multipartFiles;
 
 
 	/**
+	 * 将给定的HttpServletRequest请求包装在MultipartHttpServletRequest中。
 	 * Wrap the given HttpServletRequest in a MultipartHttpServletRequest.
 	 * @param request the request to wrap
 	 */
@@ -110,6 +116,7 @@ public abstract class AbstractMultipartHttpServletRequest extends HttpServletReq
 	}
 
 	/**
+	 * 判断分段请求是否完成
 	 * Determine whether the underlying multipart request has been resolved.
 	 * @return {@code true} when eagerly initialized or lazily triggered,
 	 * {@code false} in case of a lazy-resolution request that got aborted
@@ -123,7 +130,9 @@ public abstract class AbstractMultipartHttpServletRequest extends HttpServletReq
 
 
 	/**
+	 * 设置一个映射，将参数名称作为键，将MultipartFile对象的列表作为值。
 	 * Set a Map with parameter names as keys and list of MultipartFile objects as values.
+	 * 由子类在初始化时调用。
 	 * To be invoked by subclasses on initialization.
 	 */
 	protected final void setMultipartFiles(MultiValueMap<String, MultipartFile> multipartFiles) {
@@ -132,18 +141,22 @@ public abstract class AbstractMultipartHttpServletRequest extends HttpServletReq
 	}
 
 	/**
+	 * 获取要检索的MultipartFile映射，如有必要请对其进行延迟初始化。
 	 * Obtain the MultipartFile Map for retrieval,
 	 * lazily initializing it if necessary.
 	 * @see #initializeMultipart()
 	 */
 	protected MultiValueMap<String, MultipartFile> getMultipartFiles() {
+		//如果没有分段文件就进行解析
 		if (this.multipartFiles == null) {
+			//初始化
 			initializeMultipart();
 		}
 		return this.multipartFiles;
 	}
 
 	/**
+	 * 如果可能，延迟初始化分段请求。 仅在尚未初始化时调用。
 	 * Lazily initialize the multipart request, if possible.
 	 * Only called if not already eagerly initialized.
 	 */

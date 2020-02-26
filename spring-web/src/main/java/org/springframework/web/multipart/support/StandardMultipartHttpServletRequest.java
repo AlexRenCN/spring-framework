@@ -47,6 +47,9 @@ import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
+ * Spring MultipartHttpServletRequest适配器，包装了一个Servlet 3.0 HttpServletRequest 及其Part分段对象。
+ * 参数通过本机请求的getParameter 方法公开-无需任何自定义处理。
+ * 通过继承AbstractMultipartHttpServletRequest获得包装类的功能
  * Spring MultipartHttpServletRequest adapter, wrapping a Servlet 3.0 HttpServletRequest
  * and its Part objects. Parameters get exposed through the native request's getParameter
  * methods - without any custom processing on our side.
@@ -58,6 +61,9 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public class StandardMultipartHttpServletRequest extends AbstractMultipartHttpServletRequest {
 
+	/**
+	 * 表单提交的属性集合
+	 */
 	@Nullable
 	private Set<String> multipartParameterNames;
 
@@ -73,6 +79,7 @@ public class StandardMultipartHttpServletRequest extends AbstractMultipartHttpSe
 	}
 
 	/**
+	 * 把给定HttpServletRequest请求包装为一个新的StandardMultipartHttpServletRequest。
 	 * Create a new StandardMultipartHttpServletRequest wrapper for the given request.
 	 * @param request the servlet request to wrap
 	 * @param lazyParsing whether multipart parsing should be triggered lazily on
@@ -84,43 +91,62 @@ public class StandardMultipartHttpServletRequest extends AbstractMultipartHttpSe
 			throws MultipartException {
 
 		super(request);
+		//判断是不是需要延迟解析
 		if (!lazyParsing) {
+			//进行分段请求解析
 			parseRequest(request);
 		}
 	}
 
-
+	/**
+	 * 进行分段请求解析
+	 * @param request
+	 */
 	private void parseRequest(HttpServletRequest request) {
 		try {
+			//获取此请求的所有Part组件，前提是该请求的类型为multipart/form-data
 			Collection<Part> parts = request.getParts();
+			//表单属性
 			this.multipartParameterNames = new LinkedHashSet<>(parts.size());
 			MultiValueMap<String, MultipartFile> files = new LinkedMultiValueMap<>(parts.size());
 			for (Part part : parts) {
+				//查找约定好的表单内容，名称，类型，大小，时区之类的
 				String headerValue = part.getHeader(HttpHeaders.CONTENT_DISPOSITION);
+				//解析约定内容
 				ContentDisposition disposition = ContentDisposition.parse(headerValue);
+				//获取文件名
 				String filename = disposition.getFilename();
+				//判断是否需要解码
 				if (filename != null) {
 					if (filename.startsWith("=?") && filename.endsWith("?=")) {
+						//解码文件名
 						filename = MimeDelegate.decode(filename);
 					}
+					//将Servlet对象包装成spring分段提交对象
 					files.add(part.getName(), new StandardMultipartFile(part, filename));
 				}
 				else {
+					//没有文件名解析保存为属性
 					this.multipartParameterNames.add(part.getName());
 				}
 			}
+			//保存解析好的所有文件
 			setMultipartFiles(files);
 		}
 		catch (Throwable ex) {
+			//处理解析异常
 			handleParseFailure(ex);
 		}
 	}
 
 	protected void handleParseFailure(Throwable ex) {
 		String msg = ex.getMessage();
+		//如果包含exceed和size，说明上传的数量超过最大限制
 		if (msg != null && msg.contains("size") && msg.contains("exceed")) {
+			//抛出上传数量过多的异常
 			throw new MaxUploadSizeExceededException(-1, ex);
 		}
+		//抛出解析异常
 		throw new MultipartException("Failed to parse multipart servlet request", ex);
 	}
 
@@ -202,6 +228,7 @@ public class StandardMultipartHttpServletRequest extends AbstractMultipartHttpSe
 
 
 	/**
+	 * Spring MultipartFile适配器，包装了Servlet 3.0 Part对象。
 	 * Spring MultipartFile adapter, wrapping a Servlet 3.0 Part object.
 	 */
 	@SuppressWarnings("serial")

@@ -310,6 +310,7 @@ public abstract class WebUtils {
 	}
 
 	/**
+	 * 返回当前Web应用程序的临时目录，由servlet容器提供。
 	 * Return the temporary directory for the current web application,
 	 * as provided by the servlet container.
 	 * @param servletContext the servlet context of the web application

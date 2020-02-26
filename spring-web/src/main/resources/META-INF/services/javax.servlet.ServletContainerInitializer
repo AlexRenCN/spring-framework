@@ -1,1 +1,2 @@
+# servlet3.0标准需要指定的实现类
 org.springframework.web.SpringServletContainerInitializer

@@ -21,6 +21,7 @@ import java.util.List;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
+import com.sun.xml.internal.bind.v2.TODO;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.FileUpload;
@@ -39,6 +40,7 @@ import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequ
 import org.springframework.web.util.WebUtils;
 
 /**
+ * 用于分段文件上传
  * Servlet-based {@link MultipartResolver} implementation for
  * <a href="https://commons.apache.org/proper/commons-fileupload">Apache Commons FileUpload</a>
  * 1.2 or above.
@@ -63,6 +65,9 @@ import org.springframework.web.util.WebUtils;
 public class CommonsMultipartResolver extends CommonsFileUploadSupport
 		implements MultipartResolver, ServletContextAware {
 
+	/**
+	 * 是否延迟解析
+	 */
 	private boolean resolveLazily = false;
 
 
@@ -90,10 +95,13 @@ public class CommonsMultipartResolver extends CommonsFileUploadSupport
 
 
 	/**
+	 * 设置是否在文件或参数访问时延迟解决多部分请求。
 	 * Set whether to resolve the multipart request lazily at the time of
 	 * file or parameter access.
+	 * 默认为false，立即解析分段元素，并且在调用resolveMultipart时抛出对应异常
 	 * <p>Default is "false", resolving the multipart elements immediately, throwing
 	 * corresponding exceptions at the time of the {@link #resolveMultipart} call.
+	 * 设置为true，延迟解析分段元素，在获取分段文件或者参数是抛出解析异常
 	 * Switch this to "true" for lazy multipart parsing, throwing parse exceptions
 	 * once the application attempts to obtain multipart files or parameters.
 	 */
@@ -102,6 +110,8 @@ public class CommonsMultipartResolver extends CommonsFileUploadSupport
 	}
 
 	/**
+	 * 将给定的阿帕奇规范文件上传实例包装为ServletFileUpload对象，
+	 * 可以覆盖以使用自定义子类，例如用于测试目的。
 	 * Initialize the underlying {@code org.apache.commons.fileupload.servlet.ServletFileUpload}
 	 * instance. Can be overridden to use a custom subclass, e.g. for testing purposes.
 	 * @param fileItemFactory the Commons FileItemFactory to use
@@ -114,7 +124,9 @@ public class CommonsMultipartResolver extends CommonsFileUploadSupport
 
 	@Override
 	public void setServletContext(ServletContext servletContext) {
+		//如果使用临时目录上传文件
 		if (!isUploadTempDirSpecified()) {
+			//从servlet上下文中获取临时文件目录，并且设置到文件管理器中
 			getFileItemFactory().setRepository(WebUtils.getTempDir(servletContext));
 		}
 	}
@@ -122,24 +134,32 @@ public class CommonsMultipartResolver extends CommonsFileUploadSupport
 
 	@Override
 	public boolean isMultipart(HttpServletRequest request) {
+		//使用阿帕奇包判断是不是分段上传文件的请求
 		return ServletFileUpload.isMultipartContent(request);
 	}
 
 	@Override
 	public MultipartHttpServletRequest resolveMultipart(final HttpServletRequest request) throws MultipartException {
 		Assert.notNull(request, "Request must not be null");
+		//如果延迟加载
 		if (this.resolveLazily) {
+			//包装HttpServletRequest请求
 			return new DefaultMultipartHttpServletRequest(request) {
 				@Override
 				protected void initializeMultipart() {
+					//解析请求
 					MultipartParsingResult parsingResult = parseRequest(request);
+					//从解析的结果中获取解析的文件
 					setMultipartFiles(parsingResult.getMultipartFiles());
+					//从解析的结果中获取解析的表单参数
 					setMultipartParameters(parsingResult.getMultipartParameters());
+					//从解析的结果中获取解析的表单编码
 					setMultipartParameterContentTypes(parsingResult.getMultipartParameterContentTypes());
 				}
 			};
 		}
 		else {
+			//立即加载，解析请求
 			MultipartParsingResult parsingResult = parseRequest(request);
 			return new DefaultMultipartHttpServletRequest(request, parsingResult.getMultipartFiles(),
 					parsingResult.getMultipartParameters(), parsingResult.getMultipartParameterContentTypes());
@@ -147,16 +167,21 @@ public class CommonsMultipartResolver extends CommonsFileUploadSupport
 	}
 
 	/**
+	 * 解析给定的servlet请求，解析其多段元素。
 	 * Parse the given servlet request, resolving its multipart elements.
 	 * @param request the request to parse
 	 * @return the parsing result
 	 * @throws MultipartException if multipart resolution failed.
 	 */
 	protected MultipartParsingResult parseRequest(HttpServletRequest request) throws MultipartException {
+		//解析编码
 		String encoding = determineEncoding(request);
+		//检查指定编码并且返回FileUpload
 		FileUpload fileUpload = prepareFileUpload(encoding);
 		try {
+			//使用阿帕奇的api解析请求的表单参数或者文件
 			List<FileItem> fileItems = ((ServletFileUpload) fileUpload).parseRequest(request);
+			//将给定的阿帕奇Commons FileItems列表解析为Spring MultipartParsingResult
 			return parseFileItems(fileItems, encoding);
 		}
 		catch (FileUploadBase.SizeLimitExceededException ex) {
@@ -171,8 +196,10 @@ public class CommonsMultipartResolver extends CommonsFileUploadSupport
 	}
 
 	/**
+	 * 确定给定请求的编码。 可以在子类中覆盖。
 	 * Determine the encoding for the given request.
 	 * Can be overridden in subclasses.
+	 * 默认实现检查heep请求编码，找不到则使用默认编码。
 	 * <p>The default implementation checks the request encoding,
 	 * falling back to the default encoding specified for this resolver.
 	 * @param request current HTTP request
@@ -190,6 +217,8 @@ public class CommonsMultipartResolver extends CommonsFileUploadSupport
 
 	@Override
 	public void cleanupMultipart(MultipartHttpServletRequest request) {
+		//如果不是实现自AbstractMultipartHttpServletRequest），
+		//或者请求已经解析过
 		if (!(request instanceof AbstractMultipartHttpServletRequest) ||
 				((AbstractMultipartHttpServletRequest) request).isResolved()) {
 			try {

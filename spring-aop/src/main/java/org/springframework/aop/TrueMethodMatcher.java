@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 
 /**
+ * 总是返回true的方法匹配器
  * Canonical MethodMatcher instance that matches all methods.
  *
  * @author Rod Johnson
@@ -31,6 +32,7 @@ final class TrueMethodMatcher implements MethodMatcher, Serializable {
 
 
 	/**
+	 * 单例模式
 	 * Enforce Singleton pattern.
 	 */
 	private TrueMethodMatcher() {
@@ -42,6 +44,12 @@ final class TrueMethodMatcher implements MethodMatcher, Serializable {
 		return false;
 	}
 
+	/**
+	 * 进行方法匹配并返回true
+	 * @param method the candidate method
+	 * @param targetClass the target class
+	 * @return
+	 */
 	@Override
 	public boolean matches(Method method, Class<?> targetClass) {
 		return true;

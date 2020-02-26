@@ -19,16 +19,20 @@ package org.springframework.web.multipart;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * 多部分请求的策略接口，在文件上传时把HTTPServletRequest封装成MultipartHttpServletRequest
+ * 分段请求的策略接口，在文件上传时把HTTPServletRequest封装成MultipartHttpServletRequest
+ * http参数Content-Type为 multipart/*的请求。
  * A strategy interface for multipart file upload resolution in accordance
  * with <a href="https://www.ietf.org/rfc/rfc1867.txt">RFC 1867</a>.
  * Implementations are typically usable both within an application context
  * and standalone.
  *
+ * 从Spring 3.1开始，Spring中包含两个具体的实现：
  * <p>There are two concrete implementations included in Spring, as of Spring 3.1:
  * <ul>
+ * CommonsMultipartResolver用于文件上传
  * <li>{@link org.springframework.web.multipart.commons.CommonsMultipartResolver}
  * for Apache Commons FileUpload
+ * StandardServletMultipartResolver用于实现Servlet 3.0标准的表单提交
  * <li>{@link org.springframework.web.multipart.support.StandardServletMultipartResolver}
  * for the Servlet 3.0+ Part API
  * </ul>
@@ -86,8 +90,10 @@ import javax.servlet.http.HttpServletRequest;
 public interface MultipartResolver {
 
 	/**
-	 * 判断请求是不是包含多个内容
+	 * 判断请求是不是分段请求
 	 * Determine if the given request contains multipart content.
+	 * 通常将检查内容类型“ multipart/form-data”，
+	 * 但实际上接受的请求可能取决于解析器实现的功能。
 	 * <p>Will typically check for content type "multipart/form-data", but the actually
 	 * accepted requests might depend on the capabilities of the resolver implementation.
 	 * @param request the servlet request to be evaluated
@@ -96,10 +102,11 @@ public interface MultipartResolver {
 	boolean isMultipart(HttpServletRequest request);
 
 	/**
-	 * 将HttpServletRequest解析为MultipartHttpServletRequest
+	 * 将HttpServletRequest包装为MultipartHttpServletRequest
 	 * Parse the given HTTP request into multipart files and parameters,
 	 * and wrap the request inside a
 	 * {@link org.springframework.web.multipart.MultipartHttpServletRequest}
+	 * 提供对文件描述符的访问的对象，并使包含的参数可以通过标准ServletRequest方法访问。
 	 * object that provides access to file descriptors and makes contained
 	 * parameters accessible via the standard ServletRequest methods.
 	 * @param request the servlet request to wrap (must be of a multipart content type)
@@ -118,6 +125,7 @@ public interface MultipartResolver {
 	/**
 	 * 清理multipart请求处理的资源
 	 * Cleanup any resources used for the multipart handling,
+	 * 例如用于存储上传文件的存储空间
 	 * like a storage for the uploaded files.
 	 * @param request the request to cleanup resources for
 	 */

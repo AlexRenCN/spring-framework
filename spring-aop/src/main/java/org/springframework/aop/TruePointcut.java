@@ -19,6 +19,7 @@ package org.springframework.aop;
 import java.io.Serializable;
 
 /**
+ * 总是匹配的切入点（单例模式）
  * Canonical Pointcut instance that always matches.
  *
  * @author Rod Johnson
@@ -29,6 +30,7 @@ final class TruePointcut implements Pointcut, Serializable {
 	public static final TruePointcut INSTANCE = new TruePointcut();
 
 	/**
+	 * 单例构造
 	 * Enforce Singleton pattern.
 	 */
 	private TruePointcut() {
@@ -39,6 +41,10 @@ final class TruePointcut implements Pointcut, Serializable {
 		return ClassFilter.TRUE;
 	}
 
+	/**
+	 * 使用总是返回true的方法匹配器进行方法匹配
+	 * @return
+	 */
 	@Override
 	public MethodMatcher getMethodMatcher() {
 		return MethodMatcher.TRUE;

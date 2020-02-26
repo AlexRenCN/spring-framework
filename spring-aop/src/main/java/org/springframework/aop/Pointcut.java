@@ -17,7 +17,7 @@
 package org.springframework.aop;
 
 /**
- * Spring aop 切入点
+ * Spring aop 切入点，决定advice切面应该作用与哪个连接点
  * Core Spring pointcut abstraction.
  *
  * <p>A pointcut is composed of a {@link ClassFilter} and a {@link MethodMatcher}.
@@ -49,6 +49,7 @@ public interface Pointcut {
 
 
 	/**
+	 * 总是匹配的切入点（单例模式）
 	 * Canonical Pointcut instance that always matches.
 	 */
 	Pointcut TRUE = TruePointcut.INSTANCE;

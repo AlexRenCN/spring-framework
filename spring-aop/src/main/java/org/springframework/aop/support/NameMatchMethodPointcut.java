@@ -26,6 +26,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.PatternMatchUtils;
 
 /**
+ * 通过方法名类进行正则表达式匹配，确定是否匹配连接点
  * Pointcut bean for simple method name matches, as an alternative to regexp patterns.
  *
  * <p>Does not handle overloaded methods: all methods with a given name will be eligible.
@@ -77,6 +78,7 @@ public class NameMatchMethodPointcut extends StaticMethodMatcherPointcut impleme
 
 	@Override
 	public boolean matches(Method method, Class<?> targetClass) {
+		//通过方法名进行匹配，支持全对等和模糊查询
 		for (String mappedName : this.mappedNames) {
 			if (mappedName.equals(method.getName()) || isMatch(method.getName(), mappedName)) {
 				return true;
@@ -86,6 +88,7 @@ public class NameMatchMethodPointcut extends StaticMethodMatcherPointcut impleme
 	}
 
 	/**
+	 * 如果给定的方法名与映射的名称匹配，则返回。
 	 * Return if the given method name matches the mapped name.
 	 * <p>The default implementation checks for "xxx*", "*xxx" and "*xxx*" matches,
 	 * as well as direct equality. Can be overridden in subclasses.

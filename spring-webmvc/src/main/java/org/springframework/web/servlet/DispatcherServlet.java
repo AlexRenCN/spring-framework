@@ -507,11 +507,12 @@ public class DispatcherServlet extends FrameworkServlet {
 	}
 
 	/**
+	 * 初始化这个servlet可以用的策略类对象
 	 * Initialize the strategy objects that this servlet uses.
 	 * <p>May be overridden in subclasses in order to initialize further strategy objects.
 	 */
 	protected void initStrategies(ApplicationContext context) {
-		//初始化multipart请求解析器
+		//初始化MultipartResolver分段请求解析器
 		initMultipartResolver(context);
 		//初始化国际化解析器
 		initLocaleResolver(context);
@@ -527,22 +528,26 @@ public class DispatcherServlet extends FrameworkServlet {
 	}
 
 	/**
+	 * 初始化MultipartResolver分段请求解析器
 	 * Initialize the MultipartResolver used by this class.
 	 * <p>If no bean is defined with the given name in the BeanFactory for this namespace,
 	 * no multipart handling is provided.
 	 */
 	private void initMultipartResolver(ApplicationContext context) {
 		try {
-			//从上下文中获取解析bean
+			//从上下文中获取MultipartResolver分段请求解析器的实例对象
 			this.multipartResolver = context.getBean(MULTIPART_RESOLVER_BEAN_NAME, MultipartResolver.class);
+			//如果启用了追踪日志，就记录对应日志
 			if (logger.isTraceEnabled()) {
 				logger.trace("Detected " + this.multipartResolver);
 			}
+			//如果启用了调试日志，就记录对应日志
 			else if (logger.isDebugEnabled()) {
 				logger.debug("Detected " + this.multipartResolver.getClass().getSimpleName());
 			}
 		}
 		catch (NoSuchBeanDefinitionException ex) {
+			//默认没有MultipartResolver分段请求解析器，记录为null
 			// Default is no multipart resolver.
 			this.multipartResolver = null;
 			if (logger.isTraceEnabled()) {

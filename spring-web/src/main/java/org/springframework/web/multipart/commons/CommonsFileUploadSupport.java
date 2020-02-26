@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.sun.xml.internal.bind.v2.TODO;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.FileUpload;
@@ -64,6 +65,9 @@ public abstract class CommonsFileUploadSupport {
 
 	private boolean uploadTempDirSpecified = false;
 
+	/**
+	 * 是否保留客户端传递的保存文件路径
+	 */
 	private boolean preserveFilename = false;
 
 
@@ -173,6 +177,7 @@ public abstract class CommonsFileUploadSupport {
 	}
 
 	/**
+	 * 返回存储上传文件的临时目录
 	 * Return the temporary directory where uploaded files get stored.
 	 * @see #setUploadTempDir
 	 */
@@ -215,7 +220,10 @@ public abstract class CommonsFileUploadSupport {
 
 
 	/**
+	 * 用给定的编码集确定适当的FileUpload实例。
 	 * Determine an appropriate FileUpload instance for the given encoding.
+	 * 如果编码匹配，则默认实现返回共享的FileUpload实例
+	 * 否则，以所需的编码以外的其他配置创建一个新的FileUpload实例。
 	 * <p>Default implementation returns the shared FileUpload instance
 	 * if the encoding matches, else creates a new FileUpload instance
 	 * with the same configuration other than the desired encoding.
@@ -223,12 +231,17 @@ public abstract class CommonsFileUploadSupport {
 	 * @return an appropriate FileUpload instance.
 	 */
 	protected FileUpload prepareFileUpload(@Nullable String encoding) {
+		//获取上传文件
 		FileUpload fileUpload = getFileUpload();
+		//创建一个实际上传文件副本
 		FileUpload actualFileUpload = fileUpload;
 
+		//如果请求指定自己的编码与默认编码不匹配，则使用新的临时FileUpload实例。
 		// Use new temporary FileUpload instance if the request specifies
 		// its own encoding that does not match the default encoding.
+		//指定了编码并且和阿帕奇请求里的不一样
 		if (encoding != null && !encoding.equals(fileUpload.getHeaderEncoding())) {
+			//覆盖成一个新的FileUpload，参数
 			actualFileUpload = newFileUpload(getFileItemFactory());
 			actualFileUpload.setSizeMax(fileUpload.getSizeMax());
 			actualFileUpload.setFileSizeMax(fileUpload.getFileSizeMax());
@@ -239,7 +252,9 @@ public abstract class CommonsFileUploadSupport {
 	}
 
 	/**
+	 * 将给定的阿帕奇Commons FileItems列表解析为Spring MultipartParsingResult，
 	 * Parse the given List of Commons FileItems into a Spring MultipartParsingResult,
+	 * 包含Spring MultipartFile实例和一个multipart参数映射。
 	 * containing Spring MultipartFile instances and a Map of multipart parameter.
 	 * @param fileItems the Commons FileItems to parse
 	 * @param encoding the encoding to use for form fields
@@ -247,16 +262,23 @@ public abstract class CommonsFileUploadSupport {
 	 * @see CommonsMultipartFile#CommonsMultipartFile(org.apache.commons.fileupload.FileItem)
 	 */
 	protected MultipartParsingResult parseFileItems(List<FileItem> fileItems, String encoding) {
+		//分段文件名和文件的映射
 		MultiValueMap<String, MultipartFile> multipartFiles = new LinkedMultiValueMap<>();
+		//表单属性键和值的映射
 		Map<String, String[]> multipartParameters = new HashMap<>();
+		//表单属性键和编码的映射
 		Map<String, String> multipartParameterContentTypes = new HashMap<>();
 
+		// 提取分段提交文件和表单参数。
 		// Extract multipart files and multipart parameters.
 		for (FileItem fileItem : fileItems) {
+			//如果是简单表单字段
 			if (fileItem.isFormField()) {
 				String value;
+				//确定编码
 				String partEncoding = determineEncoding(fileItem.getContentType(), encoding);
 				try {
+					//通过制定编码拿到具体表单
 					value = fileItem.getString(partEncoding);
 				}
 				catch (UnsupportedEncodingException ex) {
@@ -264,23 +286,33 @@ public abstract class CommonsFileUploadSupport {
 						logger.warn("Could not decode multipart item '" + fileItem.getFieldName() +
 								"' with encoding '" + partEncoding + "': using platform default");
 					}
+					//默认输出值为字符串类型
 					value = fileItem.getString();
 				}
+				//获得属性名
 				String[] curParam = multipartParameters.get(fileItem.getFieldName());
 				if (curParam == null) {
+					//放置简单表单字段
 					// simple form field
+					//记录映射
 					multipartParameters.put(fileItem.getFieldName(), new String[] {value});
 				}
 				else {
+					//放置简单数组字段
 					// array of simple form fields
+					//记录映射
 					String[] newParam = StringUtils.addStringToArray(curParam, value);
 					multipartParameters.put(fileItem.getFieldName(), newParam);
 				}
+				//记录映射
 				multipartParameterContentTypes.put(fileItem.getFieldName(), fileItem.getContentType());
 			}
 			else {
+				//分段文件字段
 				// multipart file field
+				//将阿帕奇的FileItem包装成spring的CommonsMultipartFile
 				CommonsMultipartFile file = createMultipartFile(fileItem);
+				//记录映射
 				multipartFiles.add(file.getName(), file);
 				LogFormatUtils.traceDebug(logger, traceOn ->
 						"Part '" + file.getName() + "', size " + file.getSize() +
@@ -293,6 +325,7 @@ public abstract class CommonsFileUploadSupport {
 	}
 
 	/**
+	 * 将阿帕奇的FileItem包装成spring的CommonsMultipartFile
 	 * Create a {@link CommonsMultipartFile} wrapper for the given Commons {@link FileItem}.
 	 * @param fileItem the Commons FileItem to wrap
 	 * @return the corresponding CommonsMultipartFile (potentially a custom subclass)
@@ -302,22 +335,27 @@ public abstract class CommonsFileUploadSupport {
 	 */
 	protected CommonsMultipartFile createMultipartFile(FileItem fileItem) {
 		CommonsMultipartFile multipartFile = new CommonsMultipartFile(fileItem);
+		//设置是否保留该文件设置的上传路径
 		multipartFile.setPreserveFilename(this.preserveFilename);
 		return multipartFile;
 	}
 
 	/**
+	 * 清理在分段解析过程中创建的Spring MultipartFiles，
 	 * Cleanup the Spring MultipartFiles created during multipart parsing,
+	 * 可能将临时数据保存在磁盘上。
 	 * potentially holding temporary data on disk.
 	 * <p>Deletes the underlying Commons FileItem instances.
 	 * @param multipartFiles a Collection of MultipartFile instances
 	 * @see org.apache.commons.fileupload.FileItem#delete()
 	 */
 	protected void cleanupFileItems(MultiValueMap<String, MultipartFile> multipartFiles) {
+		//循环处理request请求中的所有文件
 		for (List<MultipartFile> files : multipartFiles.values()) {
 			for (MultipartFile file : files) {
 				if (file instanceof CommonsMultipartFile) {
 					CommonsMultipartFile cmf = (CommonsMultipartFile) file;
+					//获取他的文件符并进行删除
 					cmf.getFileItem().delete();
 					LogFormatUtils.traceDebug(logger, traceOn ->
 							"Cleaning up part '" + cmf.getName() +
@@ -344,10 +382,19 @@ public abstract class CommonsFileUploadSupport {
 	 */
 	protected static class MultipartParsingResult {
 
+		/**
+		 * 文件名和文件的映射
+		 */
 		private final MultiValueMap<String, MultipartFile> multipartFiles;
 
+		/**
+		 * 表单键和值的映射
+		 */
 		private final Map<String, String[]> multipartParameters;
 
+		/**
+		 * 表单键和编码的映射
+		 */
 		private final Map<String, String> multipartParameterContentTypes;
 
 		public MultipartParsingResult(MultiValueMap<String, MultipartFile> mpFiles,

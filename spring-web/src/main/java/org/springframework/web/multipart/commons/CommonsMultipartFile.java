@@ -73,8 +73,10 @@ public class CommonsMultipartFile implements MultipartFile, Serializable {
 	}
 
 	/**
+	 * 设置是否保留客户端发送的文件名，而不删除路径信息。
 	 * Set whether to preserve the filename as sent by the client, not stripping off
 	 * path information in {@link CommonsMultipartFile#getOriginalFilename()}.
+	 * 默认为“false”，删除可能作为实际文件名前缀的路径信息。将其转换为“true”，以保留客户端指定的文件名，包括可能的路径分隔符。
 	 * <p>Default is "false", stripping off path information that may prefix the
 	 * actual filename e.g. from Opera. Switch this to "true" for preserving the
 	 * client-specified filename as-is, including potential path separators.

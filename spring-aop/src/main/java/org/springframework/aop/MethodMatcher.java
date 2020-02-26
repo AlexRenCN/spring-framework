@@ -98,6 +98,7 @@ public interface MethodMatcher {
 
 
 	/**
+	 * 总是返回true的方法匹配器
 	 * Canonical instance that matches all methods.
 	 */
 	MethodMatcher TRUE = TrueMethodMatcher.INSTANCE;

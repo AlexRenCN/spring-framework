@@ -22,6 +22,7 @@ import javax.servlet.ServletContextListener;
 /**
  * TODO MVC 用于初始化WebApplicationContext root容器
  * 当一个Servlet容器启动的时候 比如tomcat jetty启动，这个类就会监听到并初始化根上下文
+ * 在一个Servlet容器关闭的时候，也会销毁创建的上下文
  * Bootstrap listener to start up and shut down Spring's root {@link WebApplicationContext}.
  * Simply delegates to {@link ContextLoader} as well as to {@link ContextCleanupListener}.
  *

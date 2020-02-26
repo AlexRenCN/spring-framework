@@ -17,7 +17,7 @@
 package org.aopalliance.aop;
 
 /**
- * 增强逻辑
+ * 增强逻辑,定义在连接点应该做什么，为切面增强提供织入接口，由AOP联盟定义
  * Tag interface for Advice. Implementations can be any type
  * of advice, such as Interceptors.
  *

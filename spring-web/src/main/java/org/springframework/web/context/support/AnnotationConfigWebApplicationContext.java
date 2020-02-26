@@ -34,6 +34,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.context.ContextLoader;
 
 /**
+ * TODO 【spring boot】使用注解方式初始化spring上下文（解析Configuration）
  * {@link org.springframework.web.context.WebApplicationContext WebApplicationContext}
  * implementation which accepts <em>component classes</em> as input &mdash; in particular
  * {@link org.springframework.context.annotation.Configuration @Configuration}-annotated
@@ -139,6 +140,8 @@ public class AnnotationConfigWebApplicationContext extends AbstractRefreshableWe
 
 
 	/**
+	 * 注册配置组件类
+	 * 需要调用refresh()刷新上下文
 	 * Register one or more component classes to be processed.
 	 * <p>Note that {@link #refresh()} must be called in order for the context
 	 * to fully process the new classes.

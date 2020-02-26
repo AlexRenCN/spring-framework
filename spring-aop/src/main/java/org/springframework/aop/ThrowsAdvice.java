@@ -17,6 +17,7 @@
 package org.springframework.aop;
 
 /**
+ * 异常增强
  * Tag interface for throws advice.
  *
  * <p>There are not any methods on this interface, as methods are invoked by
@@ -34,6 +35,10 @@ package org.springframework.aop;
  * The first three arguments are optional, and only useful if we want further
  * information about the joinpoint, as in AspectJ <b>after-throwing</b> advice.
  *
+ * 如果异常通知方法抛出异常本身，它将重写原始异常（即更改抛出给用户的异常）。
+ * 重写异常通常是运行时异常；它与任何方法签名都兼容。但是，如果异常通知方法抛出checked异常，
+ * 则它必须与目标方法的声明异常匹配，因此在某种程度上耦合到特定的目标方法签名。
+ * <b>不要抛出与目标方法的签名不兼容的未声明的checked异常！
  * <p><b>Note:</b> If a throws-advice method throws an exception itself, it will
  * override the original exception (i.e. change the exception thrown to the user).
  * The overriding exception will typically be a RuntimeException; this is compatible

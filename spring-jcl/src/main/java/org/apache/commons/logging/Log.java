@@ -97,6 +97,7 @@ public interface Log {
 	boolean isInfoEnabled();
 
 	/**
+	 * 当前是否启用调试日志记录？
 	 * Is debug logging currently enabled?
 	 * <p>Call this method to prevent having to perform expensive operations
 	 * (for example, <code>String</code> concatenation)
@@ -106,6 +107,7 @@ public interface Log {
 	boolean isDebugEnabled();
 
 	/**
+	 * 当前是否启用了跟踪日志记录？
 	 * Is trace logging currently enabled?
 	 * <p>Call this method to prevent having to perform expensive operations
 	 * (for example, <code>String</code> concatenation)
