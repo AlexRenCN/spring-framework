@@ -8,7 +8,7 @@
 	<Loggers>
 		<Logger name="org.springframework.beans" level="warn" />
 		<Root level="error">
-			<Appender ref="Console" />
+			<AppenderRef ref="Console" />
 		</Root>
 	</Loggers>
 </Configuration>

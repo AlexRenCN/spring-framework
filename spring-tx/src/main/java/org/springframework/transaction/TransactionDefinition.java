@@ -7,7 +7,7 @@
  *
  *      https://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
+ * Unless quired by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -19,7 +19,9 @@ package org.springframework.transaction;
 import org.springframework.lang.Nullable;
 
 /**
+ * 定义符合Spring的事务属性的接口。
  * Interface that defines Spring-compliant transaction properties.
+ * 基于类似于EJB CMT属性的传播行为定义。
  * Based on the propagation behavior definitions analogous to EJB CMT attributes.
  *
  * <p>Note that isolation level and timeout settings will not get applied unless
@@ -44,14 +46,17 @@ import org.springframework.lang.Nullable;
 public interface TransactionDefinition {
 
 	/**
+	 * 支持当前事务；如果不存在，则创建新事务。类似于同名的EJB事务属性。
 	 * Support a current transaction; create a new one if none exists.
 	 * Analogous to the EJB transaction attribute of the same name.
+	 * 这通常是事务定义的默认设置，并且通常定义事务同步范围
 	 * <p>This is typically the default setting of a transaction definition,
 	 * and typically defines a transaction synchronization scope.
 	 */
 	int PROPAGATION_REQUIRED = 0;
 
 	/**
+	 * 支持当前事务；如果不存在，则以非事务方式执行。类似于同名的EJB事务属性。
 	 * Support a current transaction; execute non-transactionally if none exists.
 	 * Analogous to the EJB transaction attribute of the same name.
 	 * <p><b>NOTE:</b> For transaction managers with transaction synchronization,
@@ -73,6 +78,7 @@ public interface TransactionDefinition {
 	int PROPAGATION_SUPPORTS = 1;
 
 	/**
+	 * 支持当前事务；如果当前事务不存在，则引发异常。类似于同名的EJB事务属性。
 	 * Support a current transaction; throw an exception if no current transaction
 	 * exists. Analogous to the EJB transaction attribute of the same name.
 	 * <p>Note that transaction synchronization within a {@code PROPAGATION_MANDATORY}
@@ -81,8 +87,10 @@ public interface TransactionDefinition {
 	int PROPAGATION_MANDATORY = 2;
 
 	/**
+	 * 创建新事务，如果当前事务存在，则暂停当前事务。类似于同名的EJB事务属性。
 	 * Create a new transaction, suspending the current transaction if one exists.
 	 * Analogous to the EJB transaction attribute of the same name.
+	 * 实际的事务暂停不会在所有事务管理器上立即生效
 	 * <p><b>NOTE:</b> Actual transaction suspension will not work out-of-the-box
 	 * on all transaction managers. This in particular applies to
 	 * {@link org.springframework.transaction.jta.JtaTransactionManager},
@@ -96,13 +104,16 @@ public interface TransactionDefinition {
 	int PROPAGATION_REQUIRES_NEW = 3;
 
 	/**
+	 * 不支持当前事务；而是总是以非事务性方式执行。类似于同名的EJB事务属性。
 	 * Do not support a current transaction; rather always execute non-transactionally.
 	 * Analogous to the EJB transaction attribute of the same name.
+	 * 实际的事务挂起不会在所有事务管理器上开箱即用。这特别适用于JtaTransactionManager
 	 * <p><b>NOTE:</b> Actual transaction suspension will not work out-of-the-box
 	 * on all transaction managers. This in particular applies to
 	 * {@link org.springframework.transaction.jta.JtaTransactionManager},
 	 * which requires the {@code javax.transaction.TransactionManager} to be
 	 * made available it to it (which is server-specific in standard Java EE).
+	 * 注意，多线程事务同步管理对象里的事务在NOT_SUPPORTED范围内不可用。现有同步将被挂起并适当地恢复。。
 	 * <p>Note that transaction synchronization is <i>not</i> available within a
 	 * {@code PROPAGATION_NOT_SUPPORTED} scope. Existing synchronizations
 	 * will be suspended and resumed appropriately.
@@ -111,17 +122,22 @@ public interface TransactionDefinition {
 	int PROPAGATION_NOT_SUPPORTED = 4;
 
 	/**
+	 * 不支持当前事务；如果当前事务存在，则引发异常。类似于同名的EJB事务属性。
 	 * Do not support a current transaction; throw an exception if a current transaction
 	 * exists. Analogous to the EJB transaction attribute of the same name.
+	 * 注意，多线程事务同步管理对象里的事务在NEVER范围内是不可用的。
 	 * <p>Note that transaction synchronization is <i>not</i> available within a
 	 * {@code PROPAGATION_NEVER} scope.
 	 */
 	int PROPAGATION_NEVER = 5;
 
 	/**
+	 * 如果当前事务存在，则在嵌套事务中执行，
+	 * 行为类似于{@link#PROPAGATION_REQUIRED}否则。在EJB中没有类似的特性。
 	 * Execute within a nested transaction if a current transaction exists,
 	 * behave like {@link #PROPAGATION_REQUIRED} otherwise. There is no
 	 * analogous feature in EJB.
+	 * 嵌套事务的实际创建只能在特定事务管理器上工作。
 	 * <p><b>NOTE:</b> Actual creation of a nested transaction will only work on
 	 * specific transaction managers. Out of the box, this only applies to the JDBC
 	 * {@link org.springframework.jdbc.datasource.DataSourceTransactionManager}
@@ -133,6 +149,7 @@ public interface TransactionDefinition {
 
 
 	/**
+	 * 使用底层数据存储的默认隔离级别。所有其他级别都对应于JDBC隔离级别。
 	 * Use the default isolation level of the underlying datastore.
 	 * All other levels correspond to the JDBC isolation levels.
 	 * @see java.sql.Connection
@@ -140,6 +157,7 @@ public interface TransactionDefinition {
 	int ISOLATION_DEFAULT = -1;
 
 	/**
+	 * 指示可能发生脏读、不可重复读和幻象读
 	 * Indicates that dirty reads, non-repeatable reads and phantom reads
 	 * can occur.
 	 * <p>This level allows a row changed by one transaction to be read by another
@@ -192,6 +210,7 @@ public interface TransactionDefinition {
 
 
 	/**
+	 * 返回传播行为。
 	 * Return the propagation behavior.
 	 * <p>Must return one of the {@code PROPAGATION_XXX} constants
 	 * defined on {@link TransactionDefinition this interface}.
@@ -201,10 +220,12 @@ public interface TransactionDefinition {
 	 * @see org.springframework.transaction.support.TransactionSynchronizationManager#isActualTransactionActive()
 	 */
 	default int getPropagationBehavior() {
+		//默认返回支持当前事务；如果不存在，则创建新事务。
 		return PROPAGATION_REQUIRED;
 	}
 
 	/**
+	 * 返回隔离级别
 	 * Return the isolation level.
 	 * <p>Must return one of the {@code ISOLATION_XXX} constants defined on
 	 * {@link TransactionDefinition this interface}. Those constants are designed
@@ -223,6 +244,7 @@ public interface TransactionDefinition {
 	 * @see org.springframework.transaction.support.AbstractPlatformTransactionManager#setValidateExistingTransaction
 	 */
 	default int getIsolationLevel() {
+		//使用底层数据存储的默认隔离级别
 		return ISOLATION_DEFAULT;
 	}
 
@@ -281,6 +303,7 @@ public interface TransactionDefinition {
 	// Static builder methods
 
 	/**
+	 * 返回不可修改的事务传播行为默认值。
 	 * Return an unmodifiable {@code TransactionDefinition} with defaults.
 	 * <p>For customization purposes, use the modifiable
 	 * {@link org.springframework.transaction.support.DefaultTransactionDefinition}

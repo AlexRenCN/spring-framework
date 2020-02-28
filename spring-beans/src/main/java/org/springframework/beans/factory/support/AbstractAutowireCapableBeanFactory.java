@@ -575,7 +575,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 		// 选择合适的方式进行bean的实例化（缺省/工厂/构造器选择）
 		if (instanceWrapper == null) {
-			//TODO 【alex】Spring bean声明周期，第一周期实例化
+			//TODO 【alex】Spring bean生命周期，第一周期实例化
 			instanceWrapper = createBeanInstance(beanName, mbd, args);
 		}
 		// 获得实例对象
@@ -622,10 +622,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		Object exposedObject = bean;
 		try {
 			// 填充Bean注入属性
-			//TODO 【alex】Spring bean声明周期，第二周期填充属性
+			//TODO 【alex】Spring bean生命周期，第二周期填充属性
 			populateBean(beanName, mbd, instanceWrapper);
 			// 调用初始化方法
-			//TODO 【alex】Spring bean声明周期，第三周期初始化
+			//TODO 【alex】Spring bean生命周期，第三周期初始化
 			exposedObject = initializeBean(beanName, exposedObject, mbd);
 		}
 		catch (Throwable ex) {

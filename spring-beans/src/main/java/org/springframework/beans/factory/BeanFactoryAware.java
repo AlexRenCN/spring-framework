@@ -19,9 +19,12 @@ package org.springframework.beans.factory;
 import org.springframework.beans.BeansException;
 
 /**
+ * 如果spring类对象希望知道自己的bean工厂，就可以实现此接口
  * Interface to be implemented by beans that wish to be aware of their
  * owning {@link BeanFactory}.
  *
+ * 例如，类对象可以通过寻找类工厂来寻找自己的依赖项，
+ * 注意，大多数bean将选择通过相应的bean属性或构造函数参数（依赖注入）接收对协作bean的引用
  * <p>For example, beans can look up collaborating beans via the factory
  * (Dependency Lookup). Note that most beans will choose to receive references
  * to collaborating beans via corresponding bean properties or constructor
@@ -41,7 +44,9 @@ import org.springframework.beans.BeansException;
 public interface BeanFactoryAware extends Aware {
 
 	/**
+	 * 向bean实例提供所属工厂的回调。
 	 * Callback that supplies the owning factory to a bean instance.
+	 * 在填充普通bean属性之后但在初始化回调之前调用，例如afterPropertiesSet或其他自己实现的方法
 	 * <p>Invoked after the population of normal bean properties
 	 * but before an initialization callback such as
 	 * {@link InitializingBean#afterPropertiesSet()} or a custom init-method.

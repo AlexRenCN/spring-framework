@@ -39,7 +39,10 @@ public class DefaultTransactionDefinition implements TransactionDefinition, Seri
 	/** Prefix for the propagation constants defined in TransactionDefinition. */
 	public static final String PREFIX_PROPAGATION = "PROPAGATION_";
 
-	/** Prefix for the isolation constants defined in TransactionDefinition. */
+	/**
+	 * 隔离级别异常前缀
+	 * Prefix for the isolation constants defined in TransactionDefinition.
+	 */
 	public static final String PREFIX_ISOLATION = "ISOLATION_";
 
 	/** Prefix for transaction timeout values in description strings. */

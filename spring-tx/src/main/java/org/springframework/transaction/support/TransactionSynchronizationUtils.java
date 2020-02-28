@@ -86,24 +86,29 @@ public abstract class TransactionSynchronizationUtils {
 	}
 
 	/**
+	 * 在所有的事务同步管理器上触发事务提交之前回调函数
 	 * Trigger {@code beforeCommit} callbacks on all currently registered synchronizations.
 	 * @param readOnly whether the transaction is defined as read-only transaction
 	 * @throws RuntimeException if thrown by a {@code beforeCommit} callback
 	 * @see TransactionSynchronization#beforeCommit(boolean)
 	 */
 	public static void triggerBeforeCommit(boolean readOnly) {
+		//在所有的事务同步管理器上触发事务提交之前回调函数。
 		for (TransactionSynchronization synchronization : TransactionSynchronizationManager.getSynchronizations()) {
 			synchronization.beforeCommit(readOnly);
 		}
 	}
 
 	/**
+	 * 触发执行事务提交/回滚之前的回调函数。
 	 * Trigger {@code beforeCompletion} callbacks on all currently registered synchronizations.
 	 * @see TransactionSynchronization#beforeCompletion()
 	 */
 	public static void triggerBeforeCompletion() {
+		//获取当前线程所有的事务同步管理对象
 		for (TransactionSynchronization synchronization : TransactionSynchronizationManager.getSynchronizations()) {
 			try {
+				//执行事务提交/回滚之前的回调函数
 				synchronization.beforeCompletion();
 			}
 			catch (Throwable tsex) {
@@ -113,16 +118,19 @@ public abstract class TransactionSynchronizationUtils {
 	}
 
 	/**
+	 * 触发所有事务同步管理器上的事务提交后调用回调函数
 	 * Trigger {@code afterCommit} callbacks on all currently registered synchronizations.
 	 * @throws RuntimeException if thrown by a {@code afterCommit} callback
 	 * @see TransactionSynchronizationManager#getSynchronizations()
 	 * @see TransactionSynchronization#afterCommit()
 	 */
 	public static void triggerAfterCommit() {
+		//触发所有事务同步管理器上的事务提交后调用回调函数
 		invokeAfterCommit(TransactionSynchronizationManager.getSynchronizations());
 	}
 
 	/**
+	 * 触发所有事务同步管理器上的事务提交后调用回调函数
 	 * Actually invoke the {@code afterCommit} methods of the
 	 * given Spring TransactionSynchronization objects.
 	 * @param synchronizations a List of TransactionSynchronization objects
@@ -131,6 +139,7 @@ public abstract class TransactionSynchronizationUtils {
 	public static void invokeAfterCommit(@Nullable List<TransactionSynchronization> synchronizations) {
 		if (synchronizations != null) {
 			for (TransactionSynchronization synchronization : synchronizations) {
+				//触发所有事务同步管理器上的事务提交后调用回调函数
 				synchronization.afterCommit();
 			}
 		}
@@ -152,6 +161,7 @@ public abstract class TransactionSynchronizationUtils {
 	}
 
 	/**
+	 * 立即调用给定Spring 事务管理器对象在事务提交/回滚后调用回调函数。
 	 * Actually invoke the {@code afterCompletion} methods of the
 	 * given Spring TransactionSynchronization objects.
 	 * @param synchronizations a List of TransactionSynchronization objects
@@ -164,10 +174,11 @@ public abstract class TransactionSynchronizationUtils {
 	 */
 	public static void invokeAfterCompletion(@Nullable List<TransactionSynchronization> synchronizations,
 			int completionStatus) {
-
 		if (synchronizations != null) {
+			//处理所有的事务管理器
 			for (TransactionSynchronization synchronization : synchronizations) {
 				try {
+					//在事务提交/回滚后调用回调函数
 					synchronization.afterCompletion(completionStatus);
 				}
 				catch (Throwable tsex) {

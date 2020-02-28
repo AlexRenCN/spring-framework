@@ -50,17 +50,32 @@ import org.springframework.util.Assert;
  */
 public class DefaultTransactionStatus extends AbstractTransactionStatus {
 
+	/**
+	 * 事务
+	 */
 	@Nullable
 	private final Object transaction;
 
+	/**
+	 * 是否是新的事务
+	 */
 	private final boolean newTransaction;
 
+	/**
+	 * 是否打开新的事务同步管理器
+	 */
 	private final boolean newSynchronization;
 
+	/**
+	 * 是否只读
+	 */
 	private final boolean readOnly;
 
 	private final boolean debug;
 
+	/**
+	 * 挂起资源
+	 */
 	@Nullable
 	private final Object suspendedResources;
 
@@ -94,6 +109,7 @@ public class DefaultTransactionStatus extends AbstractTransactionStatus {
 
 
 	/**
+	 * 返回基础事务对象。
 	 * Return the underlying transaction object.
 	 * @throws IllegalStateException if no transaction is active
 	 */
@@ -103,6 +119,7 @@ public class DefaultTransactionStatus extends AbstractTransactionStatus {
 	}
 
 	/**
+	 * 返回是否存在活动的实际事务
 	 * Return whether there is an actual transaction active.
 	 */
 	public boolean hasTransaction() {
@@ -115,6 +132,7 @@ public class DefaultTransactionStatus extends AbstractTransactionStatus {
 	}
 
 	/**
+	 * 如果已为此事务打开新的事务同步管理则返回
 	 * Return if a new transaction synchronization has been opened
 	 * for this transaction.
 	 */
@@ -139,6 +157,7 @@ public class DefaultTransactionStatus extends AbstractTransactionStatus {
 	}
 
 	/**
+	 * 返回因本次事务而暂停的资源
 	 * Return the holder for resources that have been suspended for this transaction,
 	 * if any.
 	 */
@@ -153,6 +172,7 @@ public class DefaultTransactionStatus extends AbstractTransactionStatus {
 	//---------------------------------------------------------------------
 
 	/**
+	 * 通过检查事务对象来确定rollback only标志
 	 * Determine the rollback-only flag via checking the transaction object, provided
 	 * that the latter implements the {@link SmartTransactionObject} interface.
 	 * <p>Will return {@code true} if the global transaction itself has been marked

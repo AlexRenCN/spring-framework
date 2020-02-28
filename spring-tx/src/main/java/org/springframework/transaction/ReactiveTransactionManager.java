@@ -21,8 +21,11 @@ import reactor.core.publisher.Mono;
 import org.springframework.lang.Nullable;
 
 /**
+ * 这是响应式事务管理器的spring中心接口
  * This is the central interface in Spring's reactive transaction infrastructure.
+ * 应用程序可以直接使用它，但它主要不是指API：
  * Applications can use this directly, but it is not primarily meant as API:
+ * 通常，应用程序将使用事务运算符或通过AOP进行的声明性事务划分。
  * Typically, applications will work with either transactional operators or
  * declarative transaction demarcation through AOP.
  *

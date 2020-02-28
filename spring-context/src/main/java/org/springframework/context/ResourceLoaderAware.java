@@ -20,8 +20,10 @@ import org.springframework.beans.factory.Aware;
 import org.springframework.core.io.ResourceLoader;
 
 /**
+ * 如果一个对象希望得到他所运行的ResourceLoader资源加载器（通常是ApplicationContext应用上下文），
  * Interface to be implemented by any object that wishes to be notified of the
  * {@link ResourceLoader} (typically the ApplicationContext) that it runs in.
+ * 这是一个ApplicationContext应用上下文可选的替代接口，用于替代ApplicationContextAware类
  * This is an alternative to a full {@link ApplicationContext} dependency via
  * the {@link org.springframework.context.ApplicationContextAware} interface.
  *
@@ -62,6 +64,7 @@ import org.springframework.core.io.ResourceLoader;
 public interface ResourceLoaderAware extends Aware {
 
 	/**
+	 * 设置运行此对象的ResourceLoader资源加载器。
 	 * Set the ResourceLoader that this object runs in.
 	 * <p>This might be a ResourcePatternResolver, which can be checked
 	 * through {@code instanceof ResourcePatternResolver}. See also the

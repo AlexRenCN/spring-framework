@@ -17,6 +17,8 @@
 package org.springframework.beans.factory;
 
 /**
+ * 允许bean知道自己类加载器的的回调；
+ * 当前bean工厂用于装入bean类的类装入器。
  * Callback that allows a bean to be aware of the bean
  * {@link ClassLoader class loader}; that is, the class loader used by the
  * present bean factory to load bean classes.
@@ -38,8 +40,10 @@ package org.springframework.beans.factory;
 public interface BeanClassLoaderAware extends Aware {
 
 	/**
+	 * 向bean实体提供类加载器设置的回调函数
 	 * Callback that supplies the bean {@link ClassLoader class loader} to
 	 * a bean instance.
+	 * 在bean属性填充但是没有执行实例化bean和后置增强前使用
 	 * <p>Invoked <i>after</i> the population of normal bean properties but
 	 * <i>before</i> an initialization callback such as
 	 * {@link InitializingBean InitializingBean's}

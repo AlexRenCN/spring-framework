@@ -19,6 +19,7 @@ package org.springframework.transaction.support;
 import java.io.Flushable;
 
 /**
+ * 事务同步回调的接口。
  * Interface for transaction synchronization callbacks.
  * Supported by AbstractPlatformTransactionManager.
  *
@@ -48,6 +49,7 @@ public interface TransactionSynchronization extends Flushable {
 
 
 	/**
+	 * 暂停此事务同步管理对象里的事务。
 	 * Suspend this synchronization.
 	 * Supposed to unbind resources from TransactionSynchronizationManager if managing any.
 	 * @see TransactionSynchronizationManager#unbindResource
@@ -56,7 +58,9 @@ public interface TransactionSynchronization extends Flushable {
 	}
 
 	/**
+	 * 恢复事务
 	 * Resume this synchronization.
+	 * 如果存在任何事务同步管理器，则应将资源重新绑定到事务同步管理器上。
 	 * Supposed to rebind resources to TransactionSynchronizationManager if managing any.
 	 * @see TransactionSynchronizationManager#bindResource
 	 */
@@ -73,6 +77,7 @@ public interface TransactionSynchronization extends Flushable {
 	}
 
 	/**
+	 * 在事务提交之前调用。例如，可以将事务性O/R映射会话刷新到数据库。
 	 * Invoked before transaction commit (before "beforeCompletion").
 	 * Can e.g. flush transactional O/R Mapping sessions to the database.
 	 * <p>This callback does <i>not</i> mean that the transaction will actually be committed.
@@ -90,7 +95,9 @@ public interface TransactionSynchronization extends Flushable {
 	}
 
 	/**
+	 * 在事务提交/回滚之前调用。
 	 * Invoked before transaction commit/rollback.
+	 * 可以在事务完成之前执行资源清理。
 	 * Can perform resource cleanup <i>before</i> transaction completion.
 	 * <p>This method will be invoked after {@code beforeCommit}, even when
 	 * {@code beforeCommit} threw an exception. This callback allows for
@@ -104,8 +111,10 @@ public interface TransactionSynchronization extends Flushable {
 	}
 
 	/**
+	 * 在事务提交后调用。在主事务成功提交后，可以执行进一步的操作。
 	 * Invoked after transaction commit. Can perform further operations right
 	 * <i>after</i> the main transaction has <i>successfully</i> committed.
+	 * 例如，可以提交进一步的操作，这些操作应该在主事务的成功提交之后进行，如确认消息或电子邮件。
 	 * <p>Can e.g. commit further operations that are supposed to follow on a successful
 	 * commit of the main transaction, like confirmation messages or emails.
 	 * <p><b>NOTE:</b> The transaction will have been committed already, but the
@@ -122,8 +131,14 @@ public interface TransactionSynchronization extends Flushable {
 	}
 
 	/**
+	 * 在事务提交/回滚后调用。
 	 * Invoked after transaction commit/rollback.
+	 * 可以在事务完成后执行资源清理。
 	 * Can perform resource cleanup <i>after</i> transaction completion.
+	 * 事务将已提交或回滚，但事务资源可能仍处于活动状态且可访问。
+	 * 因此，此时触发的任何数据访问代码仍将“参与”原始事务，允许执行某些清理（不再执行commit后续操作！），
+	 * 除非它明确声明需要在单独的事务中运行。因此：
+	 * 对于从这里调用的任何事务性操作，使用REQUIRES_NEW
 	 * <p><b>NOTE:</b> The transaction will have been committed or rolled back already,
 	 * but the transactional resources might still be active and accessible. As a
 	 * consequence, any data access code triggered at this point will still "participate"

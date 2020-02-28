@@ -81,6 +81,9 @@ public abstract class TransactionSynchronizationManager {
 	private static final ThreadLocal<Map<Object, Object>> resources =
 			new NamedThreadLocal<>("Transactional resources");
 
+	/**
+	 * 事务同步状态
+	 */
 	private static final ThreadLocal<Set<TransactionSynchronization>> synchronizations =
 			new NamedThreadLocal<>("Transaction synchronizations");
 
@@ -257,6 +260,8 @@ public abstract class TransactionSynchronizationManager {
 	//-------------------------------------------------------------------------
 
 	/**
+	 * 如果当前线程的多线程事务同步管理对象里的事务处于活动状态，则返回。
+	 * 可以在注册之前调用，以避免不必要的实例创建
 	 * Return if transaction synchronization is active for the current thread.
 	 * Can be called before register to avoid unnecessary instance creation.
 	 * @see #registerSynchronization
@@ -266,11 +271,13 @@ public abstract class TransactionSynchronizationManager {
 	}
 
 	/**
+	 * 为当前线程激活事务同步管理。事务管理器在事务开始时调用。
 	 * Activate transaction synchronization for the current thread.
 	 * Called by a transaction manager on transaction begin.
 	 * @throws IllegalStateException if synchronization is already active
 	 */
 	public static void initSynchronization() throws IllegalStateException {
+		//如果有处于活动状态的事务则抛出异常
 		if (isSynchronizationActive()) {
 			throw new IllegalStateException("Cannot activate transaction synchronization - already active");
 		}
@@ -279,6 +286,7 @@ public abstract class TransactionSynchronizationManager {
 	}
 
 	/**
+	 * 为当前线程注册新的同步事务。通常由资源管理代码调用。
 	 * Register a new transaction synchronization for the current thread.
 	 * Typically called by resource management code.
 	 * <p>Note that synchronizations can implement the
@@ -300,6 +308,7 @@ public abstract class TransactionSynchronizationManager {
 	}
 
 	/**
+	 * 返回当前线程的所有已注册同步的不可修改快照列表。
 	 * Return an unmodifiable snapshot list of all registered synchronizations
 	 * for the current thread.
 	 * @return unmodifiable List of TransactionSynchronization instances
@@ -307,10 +316,13 @@ public abstract class TransactionSynchronizationManager {
 	 * @see TransactionSynchronization
 	 */
 	public static List<TransactionSynchronization> getSynchronizations() throws IllegalStateException {
+		//获取当前线程的所有事务同步管理对象里的事务
 		Set<TransactionSynchronization> synchs = synchronizations.get();
+		//如果没有活动的事务同步需要抛出异常
 		if (synchs == null) {
 			throw new IllegalStateException("Transaction synchronization is not active");
 		}
+		//返回不可修改的快照，以避免在迭代和调用同步回调时发生异常，而这些回调又可能注册再一次的事务同步。
 		// Return unmodifiable snapshot, to avoid ConcurrentModificationExceptions
 		// while iterating and invoking synchronization callbacks that in turn
 		// might register further synchronizations.
@@ -318,6 +330,7 @@ public abstract class TransactionSynchronizationManager {
 			return Collections.emptyList();
 		}
 		else {
+			//在获取事务同步管理对象里的事务时延迟排序，而不是在注册事务同步的时候
 			// Sort lazily here, not in registerSynchronization.
 			List<TransactionSynchronization> sortedSynchs = new ArrayList<>(synchs);
 			AnnotationAwareOrderComparator.sort(sortedSynchs);
@@ -326,15 +339,18 @@ public abstract class TransactionSynchronizationManager {
 	}
 
 	/**
+	 * 停用当前线程的事务同步管理。事务管理器在事务清理时调用。
 	 * Deactivate transaction synchronization for the current thread.
 	 * Called by the transaction manager on transaction cleanup.
 	 * @throws IllegalStateException if synchronization is not active
 	 */
 	public static void clearSynchronization() throws IllegalStateException {
+		//如果当前线程的多线程事务同步管理对象里的事务不处于活动状态，则抛出异常
 		if (!isSynchronizationActive()) {
 			throw new IllegalStateException("Cannot deactivate transaction synchronization - not active");
 		}
 		logger.trace("Clearing transaction synchronization");
+		//从线程变量中移除
 		synchronizations.remove();
 	}
 
@@ -354,6 +370,8 @@ public abstract class TransactionSynchronizationManager {
 	}
 
 	/**
+	 * 返回当前事务的名称，如果未设置，null。
+	 * 要由资源管理代码调用以优化每个用例，例如用于优化特定命名事务的获取策略。
 	 * Return the name of the current transaction, or {@code null} if none set.
 	 * To be called by resource management code for optimizations per use case,
 	 * for example to optimize fetch strategies for specific named transactions.
@@ -376,7 +394,9 @@ public abstract class TransactionSynchronizationManager {
 	}
 
 	/**
+	 * 返回当前事务是否标记为只读。
 	 * Return whether the current transaction is marked as read-only.
+	 * 在准备新创建的资源（例如，Hibernate会话）时由资源管理代码调用。
 	 * To be called by resource management code when preparing a newly
 	 * created resource (for example, a Hibernate Session).
 	 * <p>Note that transaction synchronizations receive the read-only flag
@@ -412,6 +432,7 @@ public abstract class TransactionSynchronizationManager {
 	}
 
 	/**
+	 * 返回当前事务的隔离级别，如果可能的话。在准备新创建的资源（例如JDBC连接）时由资源管理代码调用。
 	 * Return the isolation level for the current transaction, if any.
 	 * To be called by resource management code when preparing a newly
 	 * created resource (for example, a JDBC Connection).
@@ -444,7 +465,9 @@ public abstract class TransactionSynchronizationManager {
 	}
 
 	/**
+	 * 返回当前是否有活动的实际事务。
 	 * Return whether there currently is an actual transaction active.
+	 * 这表示当前线程是否与实际的事务关联，而不仅仅与活动事务同步关联。
 	 * This indicates whether the current thread is associated with an actual
 	 * transaction rather than just with active transaction synchronization.
 	 * <p>To be called by resource management code that wants to discriminate
