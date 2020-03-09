@@ -64,35 +64,52 @@ import org.springframework.lang.Nullable;
  * are supposed to override beans of the same name in any parent factory.
  *
  * TODO 【alex】spring bean的生命周期文档说明
- * FIXME 从setEnvironment继续学
+ * Bean工厂实现应该尽可能支持标准的Bean生命周期接口。整套初始化方法及其标准顺序为：
  * <p>Bean factory implementations should support the standard bean lifecycle interfaces
  * as far as possible. The full set of initialization methods and their standard order is:
  * <ol>
+ * 设置名称
  * <li>BeanNameAware's {@code setBeanName}
+ * 设置类加载器
  * <li>BeanClassLoaderAware's {@code setBeanClassLoader}
+ * 设置类工厂
  * <li>BeanFactoryAware's {@code setBeanFactory}
+ * 设置环境
  * <li>EnvironmentAware's {@code setEnvironment}
+ * 设置字符串解析器
  * <li>EmbeddedValueResolverAware's {@code setEmbeddedValueResolver}
+ * 设置资源加载器
  * <li>ResourceLoaderAware's {@code setResourceLoader}
  * (only applicable when running in an application context)
+ * 设置应用事件发布器
  * <li>ApplicationEventPublisherAware's {@code setApplicationEventPublisher}
  * (only applicable when running in an application context)
+ * 设置消息解析器，国际化
  * <li>MessageSourceAware's {@code setMessageSource}
  * (only applicable when running in an application context)
+ * 设置应用上下文
  * <li>ApplicationContextAware's {@code setApplicationContext}
  * (only applicable when running in an application context)
+ * 设置Servlet上下文
  * <li>ServletContextAware's {@code setServletContext}
  * (only applicable when running in a web application context)
+ * 设置实例化前置处理器
  * <li>{@code postProcessBeforeInitialization} methods of BeanPostProcessors
  * <li>InitializingBean's {@code afterPropertiesSet}
+ * 客户自定义实例化方法
  * <li>a custom init-method definition
+ * 设置实例化后置处理器
  * <li>{@code postProcessAfterInitialization} methods of BeanPostProcessors
  * </ol>
  *
+ * 关闭bean工厂时，将应用以下生命周期方法：
  * <p>On shutdown of a bean factory, the following lifecycle methods apply:
  * <ol>
+ * 销毁bean的前置
  * <li>{@code postProcessBeforeDestruction} methods of DestructionAwareBeanPostProcessors
+ * 销毁bean的方法
  * <li>DisposableBean's {@code destroy}
+ * 客户自定义销毁方法
  * <li>a custom destroy-method definition
  * </ol>
  *

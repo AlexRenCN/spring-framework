@@ -17,7 +17,7 @@
 package org.springframework.core.env;
 
 /**
- * TODO 用来描述容器启动的环境
+ * TODO 【alex】用来描述容器启动的环境
  * Interface representing the environment in which the current application is running.
  * Models two key aspects of the application environment: <em>profiles</em> and
  * <em>properties</em>. Methods related to property access are exposed via the
@@ -32,6 +32,9 @@ package org.springframework.core.env;
  * active}, and which profiles (if any) should be {@linkplain #getDefaultProfiles active
  * by default}.
  *
+ * 在几乎所有的应用程序中都扮演着重要的角色，并且可能源于各种来源：属性文件、JVM系统属性、系统环境变量、
+ * JNDI、servlet上下文参数、特殊属性对象、映射等等。与属性相关的环境对象的作用是为用户提供一个方便的服务接口，
+ * 用于配置属性源并从中解析属性。
  * <p><em>Properties</em> play an important role in almost all applications, and may
  * originate from a variety of sources: properties files, JVM system properties, system
  * environment variables, JNDI, servlet context parameters, ad-hoc Properties objects,

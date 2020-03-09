@@ -20,6 +20,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.lang.Nullable;
 
 /**
+ * 允许自定义修改新bean实例的回调工厂，例如，检查标记接口或用代理包装bean。
  * Factory hook that allows for custom modification of new bean instances &mdash;
  * for example, checking for marker interfaces or wrapping beans with proxies.
  *
@@ -58,6 +59,7 @@ import org.springframework.lang.Nullable;
 public interface BeanPostProcessor {
 
 	/**
+	 * 在bean实例化之前对BeanPostProcessor后置处理器进行回调，应用在对象实例上
 	 * Apply this {@code BeanPostProcessor} to the given new bean instance <i>before</i> any bean
 	 * initialization callbacks (like InitializingBean's {@code afterPropertiesSet}
 	 * or a custom init-method). The bean will already be populated with property values.
@@ -76,10 +78,13 @@ public interface BeanPostProcessor {
 	}
 
 	/**
+	 * 在bean实例化之后对BeanPostProcessor后置处理器进行回调，应用在对象实例上
 	 * Apply this {@code BeanPostProcessor} to the given new bean instance <i>after</i> any bean
 	 * initialization callbacks (like InitializingBean's {@code afterPropertiesSet}
 	 * or a custom init-method). The bean will already be populated with property values.
 	 * The returned bean instance may be a wrapper around the original.
+	 * 对于FactoryBean，这个回调将被FactoryBean实例和FactoryBean创建的对象（从Spring 2.0开始）调用。
+	 * 后处理器可以通过相应的{@code bean instanceof FactoryBean}检查来决定是应用于FactoryBean还是创建的对象，或者两者都应用。
 	 * <p>In case of a FactoryBean, this callback will be invoked for both the FactoryBean
 	 * instance and the objects created by the FactoryBean (as of Spring 2.0). The
 	 * post-processor can decide whether to apply to either the FactoryBean or created

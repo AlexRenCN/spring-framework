@@ -107,6 +107,7 @@ public class BeanDefinitionDefaults {
 	}
 
 	/**
+	 * 设置默认初始值设定项方法的名称
 	 * Set the name of the default initializer method.
 	 */
 	public void setInitMethodName(@Nullable String initMethodName) {
@@ -114,6 +115,7 @@ public class BeanDefinitionDefaults {
 	}
 
 	/**
+	 * 返回默认初始值设定项方法的名称。
 	 * Return the name of the default initializer method.
 	 */
 	@Nullable
@@ -122,6 +124,7 @@ public class BeanDefinitionDefaults {
 	}
 
 	/**
+	 * 设置默认销毁方法的名称
 	 * Set the name of the default destroy method.
 	 */
 	public void setDestroyMethodName(@Nullable String destroyMethodName) {
@@ -129,6 +132,7 @@ public class BeanDefinitionDefaults {
 	}
 
 	/**
+	 * 返回默认销毁方法的名称
 	 * Return the name of the default destroy method.
 	 */
 	@Nullable

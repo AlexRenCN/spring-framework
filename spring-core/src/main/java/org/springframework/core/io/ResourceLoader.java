@@ -21,6 +21,7 @@ import org.springframework.util.ResourceUtils;
 
 /**
  * 加载资源的策略接口（classPath路径或者文件路径）
+ * 仅在应用程序上下文中运行时适用
  * Strategy interface for loading resources (e.. class path or file system
  * 需要一个ApplicationContext来提供这个功能，以及扩展ResourcePatternResolver支持
  * resources). An {@link org.springframework.context.ApplicationContext}
