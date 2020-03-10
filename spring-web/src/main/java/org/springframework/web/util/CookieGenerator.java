@@ -75,6 +75,7 @@ public class CookieGenerator {
 	}
 
 	/**
+	 * 返回此生成器创建的cookie的给定名称。
 	 * Return the given name for cookies created by this generator.
 	 */
 	@Nullable

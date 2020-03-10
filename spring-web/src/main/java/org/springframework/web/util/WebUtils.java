@@ -567,6 +567,7 @@ public abstract class WebUtils {
 	}
 
 	/**
+	 * 根据名称匹配并返回第一个cookie。请注意，多个cookie可以有相同的名称，但路径或域不同。
 	 * Retrieve the first cookie with the given name. Note that multiple
 	 * cookies can have the same name but different paths or domains.
 	 * @param request current servlet request
@@ -576,8 +577,10 @@ public abstract class WebUtils {
 	@Nullable
 	public static Cookie getCookie(HttpServletRequest request, String name) {
 		Assert.notNull(request, "Request must not be null");
+		//获取所有的Cookie
 		Cookie[] cookies = request.getCookies();
 		if (cookies != null) {
+			//根据名称匹配并返回第一个cookie
 			for (Cookie cookie : cookies) {
 				if (name.equals(cookie.getName())) {
 					return cookie;

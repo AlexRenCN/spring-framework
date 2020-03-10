@@ -29,10 +29,13 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.LocaleResolver;
 
 /**
+ * LocaleResolver只使用在HTTP请求的“accept language”头中指定的主语言环境的实现
+ * （即客户端浏览器发送的语言环境，通常是客户端操作系统的语言环境）。
  * {@link LocaleResolver} implementation that simply uses the primary locale
  * specified in the "accept-language" header of the HTTP request (that is,
  * the locale sent by the client browser, normally that of the client's OS).
  *
+ * 注意：不支持setLocale来改变区域设置，因为accept头只能通过更改客户端的区域设置来更改。
  * <p>Note: Does not support {@code setLocale}, since the accept header
  * can only be changed through changing the client's locale settings.
  *
@@ -43,13 +46,20 @@ import org.springframework.web.servlet.LocaleResolver;
  */
 public class AcceptHeaderLocaleResolver implements LocaleResolver {
 
+	/**
+	 * 受支持区域设置列表
+	 */
 	private final List<Locale> supportedLocales = new ArrayList<>(4);
 
+	/**
+	 * 默认区域
+	 */
 	@Nullable
 	private Locale defaultLocale;
 
 
 	/**
+	 * 配置支持的区域设置
 	 * Configure supported locales to check against the requested locales
 	 * determined via {@link HttpServletRequest#getLocales()}. If this is not
 	 * configured then {@link HttpServletRequest#getLocale()} is used instead.
@@ -57,11 +67,14 @@ public class AcceptHeaderLocaleResolver implements LocaleResolver {
 	 * @since 4.3
 	 */
 	public void setSupportedLocales(List<Locale> locales) {
+		//清空原有的配置
 		this.supportedLocales.clear();
+		//添加新的配置
 		this.supportedLocales.addAll(locales);
 	}
 
 	/**
+	 * 返回已配置的受支持区域设置列表。
 	 * Return the configured list of supported locales.
 	 * @since 4.3
 	 */
@@ -70,6 +83,7 @@ public class AcceptHeaderLocaleResolver implements LocaleResolver {
 	}
 
 	/**
+	 * 配置一个固定的默认区域设置，如果请求没有“Accept Language”头，则返回该设置。
 	 * Configure a fixed default locale to fall back on if the request does not
 	 * have an "Accept-Language" header.
 	 * <p>By default this is not set in which case when there is "Accept-Language"
@@ -83,6 +97,7 @@ public class AcceptHeaderLocaleResolver implements LocaleResolver {
 	}
 
 	/**
+	 * 配置的默认区域设置（如果有）。
 	 * The configured default locale, if any.
 	 * @since 4.3
 	 */
@@ -94,22 +109,39 @@ public class AcceptHeaderLocaleResolver implements LocaleResolver {
 
 	@Override
 	public Locale resolveLocale(HttpServletRequest request) {
+		//返回配置的默认区域设置
 		Locale defaultLocale = getDefaultLocale();
+		//如果设置了默认区域，并且请求中没有设置Accept-Language
 		if (defaultLocale != null && request.getHeader("Accept-Language") == null) {
+			//返回默认区域
 			return defaultLocale;
 		}
+		//使用request里的区域
 		Locale requestLocale = request.getLocale();
+		//返回已配置的受支持区域设置列表
 		List<Locale> supportedLocales = getSupportedLocales();
+		//如果没有受支持区域 或者 受支持区域设置列表包含当前区域
 		if (supportedLocales.isEmpty() || supportedLocales.contains(requestLocale)) {
+			//选择使用request里的区域
 			return requestLocale;
 		}
+		//匹配支持request的区域
 		Locale supportedLocale = findSupportedLocale(request, supportedLocales);
+		//如果能匹配到
 		if (supportedLocale != null) {
+			//使用能匹配request的受支持区域
 			return supportedLocale;
 		}
+		//使用默认区域或者request里的区域
 		return (defaultLocale != null ? defaultLocale : requestLocale);
 	}
 
+	/**
+	 * 匹配支持request的区域
+	 * @param request
+	 * @param supportedLocales
+	 * @return
+	 */
 	@Nullable
 	private Locale findSupportedLocale(HttpServletRequest request, List<Locale> supportedLocales) {
 		Enumeration<Locale> requestLocales = request.getLocales();
@@ -118,11 +150,13 @@ public class AcceptHeaderLocaleResolver implements LocaleResolver {
 			Locale locale = requestLocales.nextElement();
 			if (supportedLocales.contains(locale)) {
 				if (languageMatch == null || languageMatch.getLanguage().equals(locale.getLanguage())) {
+					// 完全匹配：语言+国家，可能比以前的仅语言匹配缩小
 					// Full match: language + country, possibly narrowed from earlier language-only match
 					return locale;
 				}
 			}
 			else if (languageMatch == null) {
+				// 让我们试着找到一个只匹配一种语言作为后备
 				// Let's try to find a language-only match as a fallback
 				for (Locale candidate : supportedLocales) {
 					if (!StringUtils.hasLength(candidate.getCountry()) &&
